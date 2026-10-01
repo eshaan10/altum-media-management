@@ -11,7 +11,10 @@ const NAVY = "#0B1B33";
 const STEEL = "#1E5A8C";
 const MUTED = "#5B7291";
 const RULE = "#E3EAF1";
-const FONT = "-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
+// Must be a public absolute URL (email clients fetch it): served from /public/brand/.
+const LOGO_URL = "https://altummediamanagement.com/brand/email-logo.jpeg";
+const LOGO_SIZE = 150; // px; the source is a 1024×1024 square
+const FONT ="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif";
 
 function escapeHtml(s: string) {
   return s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
@@ -45,8 +48,13 @@ export function renderContactEmail({ name, email, business, message }: Inquiry) 
       <td align="center" style="padding:32px 20px">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px">
 
-          <!-- LOGO SLOT: a logo could go here later, above the reply button, e.g.
-               <tr><td style="padding:0 0 28px"><img src="https://<site>/brand/altum-wordmark.png" width="116" height="22" alt="Altum"></td></tr> -->
+          <!-- Logo: square navy tile, centred. Fixed width/height attributes so clients that
+               ignore CSS still size it correctly (no stretching while it loads). -->
+          <tr>
+            <td align="center" style="padding:0 0 32px">
+              <img src="${LOGO_URL}" width="${LOGO_SIZE}" height="${LOGO_SIZE}" alt="Altum Media Management" style="display:block;width:${LOGO_SIZE}px;height:${LOGO_SIZE}px;border:0;outline:none;text-decoration:none;border-radius:8px">
+            </td>
+          </tr>
 
           <!-- 1. One-click reply (opens a new email to the submitter). -->
           <tr>
