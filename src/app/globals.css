@@ -1,26 +1,231 @@
 @import "tailwindcss";
+@import "lenis/dist/lenis.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --color-sky: #d6ecfa;
+  --color-navy: #0b1b33;
+  --color-steel: #1e5a8c;
+  --color-slate: #5b7291;
+  --color-white: #ffffff;
+
+  --font-sans: var(--font-schibsted), ui-sans-serif, system-ui, sans-serif;
+  /* Only used by the text fallback when brand.logo.src is null. */
+  --font-wordmark: Georgia, serif;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  background: var(--color-sky);
+  color: var(--color-navy);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-sky);
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-steel);
+  color: var(--color-white);
+}
+
+/* Oversized hero type. Sentences only wrap between phrases (see hero.headline).
+   Phones: sized so the widest phrase ("to worry about." ≈ 7.03em) takes ~76% of the
+   20px-gutter column, giving "One less thing / to worry about. / One more way / to grow."
+   Tablet+: "One less thing / to worry about. / One more way to grow." — the bottom line
+   (≈ 10.37em) always fits the content column. */
+.hero-headline {
+  font-size: clamp(1.875rem, calc((100vw - 2.5rem) / 9.2), 3.625rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+}
+
+.hero-headline > span {
+  text-wrap: balance;
+}
+
+@media (min-width: 640px) {
+  .hero-headline {
+    font-size: clamp(2.5rem, 6.6vw, 6rem);
+    /* Wider than the bottom sentence (≈ 10.37em), narrower than the top one (≈ 13.5em),
+       so the top always breaks after "thing" and the bottom stays on one line. */
+    max-width: 12em;
+  }
+}
+
+/* ---- Hero entrance ----------------------------------------------------------
+   The hero is above the fold, so it animates in with plain CSS from first paint,
+   with no JS, IntersectionObserver or scroll involved (unlike [data-reveal]). */
+.hero-in {
+  animation: hero-in 0.9s var(--ease-out-expo) var(--reveal-delay, 0ms) both;
+}
+
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-in {
+    animation: none;
+  }
+}
+
+/* ---- Hero halftone line (HalftoneLine.tsx) ----------------------------------
+   Only hidden when the pre-paint head script armed the animation for this load
+   (html.halftone-armed). Failsafe: if it hasn't started within 1.5s, the text
+   shows; HalftoneLine checks for that and stands down rather than re-hiding. */
+@media (prefers-reduced-motion: no-preference) {
+  html.halftone-armed [data-halftone="pending"] {
+    color: transparent;
+    animation: halftone-failsafe 0s linear 1.5s forwards;
+  }
+  html.halftone-armed [data-halftone="running"] {
+    color: transparent;
+  }
+}
+
+@keyframes halftone-failsafe {
+  to {
+    color: var(--color-navy);
+  }
+}
+
+/* ---- Brand marquee (BrandMarquee.tsx) --------------------------------------
+   Runs on its own CSS timeline, independent of scroll. The track holds the logo
+   list repeated an even number of times; sliding by exactly -50% lands on an
+   identical frame, so the loop is seamless. Edges fade out via a mask. */
+.marquee {
+  --logo-scale: 0.8;
+  --gap: 3.25rem;
+  overflow: hidden;
+  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  outline: none;
+}
+
+@media (min-width: 640px) {
+  .marquee {
+    --logo-scale: 1;
+    --gap: 4.5rem;
+  }
+}
+
+.marquee:focus-visible {
+  outline: 2px solid var(--color-steel);
+  outline-offset: 4px;
+}
+
+.marquee-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: marquee 60s linear infinite;
+}
+
+/* Keeps running under the mouse and on touch; only pauses when a keyboard user
+   tabs to it (focus-visible, so a mouse click doesn't trigger it). */
+.marquee:focus-visible .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Right margin (not flex gap) so each half of the track is exactly the same width. */
+.marquee-item {
+  margin-right: var(--gap);
+}
+
+.marquee-logo {
+  width: calc(var(--w) * var(--logo-scale));
+  height: calc(var(--h) * var(--logo-scale));
+  /* Desaturate and darken so light-toned marks (RIIP's grey, Sun Bum's pale face)
+     carry similar weight to the solid black ones. */
+  filter: grayscale(1) brightness(0.5);
+  opacity: 0.5;
+  transition:
+    filter 0.4s ease,
+    opacity 0.4s ease;
+}
+
+.marquee-item:hover .marquee-logo {
+  filter: grayscale(0) brightness(1);
+  opacity: 1;
+}
+
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Reduced motion: one static, centred row; repeats hidden. */
+@media (prefers-reduced-motion: reduce) {
+  .marquee {
+    mask-image: none;
+  }
+  .marquee-track {
+    animation: none;
+    width: auto;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 1.5rem;
+  }
+  .marquee-item[aria-hidden] {
+    display: none;
+  }
+  .marquee-item:last-child,
+  .marquee-item:has(+ .marquee-item[aria-hidden]) {
+    margin-right: 0;
+  }
+}
+
+/* Prices use tabular digits (steady count-up), but a tabular comma is digit-wide. */
+.price-sep {
+  font-variant-numeric: normal;
+}
+
+/* ---- Pricing card lines (ServicesMotion.tsx) ---------------------------------
+   Only hidden once ServicesMotion arms the section (never without JS or with
+   reduced motion). The transition lives on the "in" state so arming doesn't
+   animate lines out. Delays are set per line inline. */
+.services-armed [data-line] {
+  opacity: 0;
+  transform: translate3d(0, 8px, 0);
+}
+
+.services-armed .lines-in [data-line] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 0.5s var(--ease-out-expo),
+    transform 0.6s var(--ease-out-expo);
+}
+
+/* ---- Scroll reveal --------------------------------------------------------
+   Elements with [data-reveal] start hidden only once JS is confirmed (html.js),
+   so the page is fully readable without JavaScript. RevealObserver adds
+   .is-visible when the element enters the viewport. */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+  transition:
+    opacity 0.9s var(--ease-out-expo),
+    transform 1.1s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+html.js [data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
