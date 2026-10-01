@@ -10,14 +10,6 @@ function Check() {
   );
 }
 
-function Slash() {
-  return (
-    <svg viewBox="0 0 16 16" aria-hidden className="mt-[0.28em] size-[15px] shrink-0 text-slate/60">
-      <path d="M5 12 11 4" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
-    </svg>
-  );
-}
-
 /** Price with tabular digits but a normal-width comma (tabular commas leave a gap: "$1 , 500"). */
 function PriceText({ value }: { value: string }) {
   const [head, ...rest] = value.split(",");
@@ -42,7 +34,7 @@ function TierCard({ tier }: { tier: Tier }) {
   return (
     <article
       data-tier-card
-      className={`relative flex h-full flex-col rounded-[10px] border-[0.5px] bg-white p-7 transition-[translate,border-color] duration-200 ease-out hover:-translate-y-[3px] hover:border-steel sm:p-9 ${
+      className={`relative flex flex-col rounded-[10px] border-[0.5px] bg-white p-7 transition-[translate,border-color] duration-200 ease-out hover:-translate-y-[3px] hover:border-steel sm:p-9 ${
         // CREATE carries a persistent (non-hover) emphasis: steel border tint + a 3px steel top
         // border as the accent bar. Being the card's own border, it follows the rounded corners
         // and tapers into the sides. Top padding drops by the extra 2.5px so content still lines
@@ -88,19 +80,7 @@ function TierCard({ tier }: { tier: Tier }) {
         </ul>
       </div>
 
-      <div className="mt-8 border-t-[0.5px] border-navy/15 pt-6">
-        <h4 className={groupLabel}>Not included</h4>
-        <ul className="mt-4 space-y-3">
-          {tier.excluded.map((item) => (
-            <li key={item} data-line className="flex gap-3 text-[0.95rem] leading-snug text-slate">
-              <Slash />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="mt-auto pt-10">
+      <div className="pt-10">
         <a
           href="#contact"
           data-plan={tier.name}
@@ -134,7 +114,8 @@ export default function Services() {
           </h2>
         </div>
 
-        <div className="mx-auto mt-14 grid max-w-2xl gap-5 sm:mt-20 lg:max-w-none lg:grid-cols-3 lg:gap-6">
+        {/* items-start: each card is its natural height (no stretching to the tallest). */}
+        <div className="mx-auto mt-14 grid max-w-2xl items-start gap-5 sm:mt-20 lg:max-w-none lg:grid-cols-3 lg:gap-6">
           {services.tiers.map((tier, i) => (
             <div
               key={tier.name}

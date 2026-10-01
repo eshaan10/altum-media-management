@@ -86,7 +86,6 @@ export type Tier = {
   price: string;
   popular?: boolean;
   included: string[];
-  excluded: string[];
 };
 
 export const services = {
@@ -105,7 +104,6 @@ export const services = {
         "Basic community management",
         "Monthly check-in call",
       ],
-      excluded: ["Content creation", "Strategy or brainstorming", "Paid ads", "Video work"],
     },
     {
       name: "Create",
@@ -115,13 +113,11 @@ export const services = {
         "6 original posts per month, created by us",
         "You direct the content, we execute",
         "Custom graphics and captions included",
-        "2–3 platforms managed",
         "Daily DM and comment responses",
         "Full engagement management",
         "Bi-weekly strategy calls",
         "Monthly analytics report",
       ],
-      excluded: ["Strategic brainstorming", "Video production", "Paid ads"],
     },
     {
       name: "Strategy",
@@ -130,14 +126,12 @@ export const services = {
         "8–10 posts per month",
         "We brainstorm and pitch ideas",
         "Video content (Reels/TikTok)",
-        "3–4 platforms managed",
         "Paid ad management, $500–1,000 ad spend included",
         "Daily engagement management",
         "Weekly analytics and optimization",
         "Weekly strategy calls",
         "Monthly big-picture planning",
       ],
-      excluded: ["High-production video", "Full brand rebrand", "Photo shoots"],
     },
   ] satisfies Tier[],
 };
